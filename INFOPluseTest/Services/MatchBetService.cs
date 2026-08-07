@@ -10,7 +10,7 @@ public class MatchBetService
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public List<MatchRecord> MatchBetDataList { get; private set; }
+    public List<MatchRecord> MatchBetDataList { get;  set; }
     
     public MatchBetService()
     {
@@ -65,9 +65,41 @@ public class MatchBetService
             skippedRecordCount);
     }
 
-    public List<(string,decimal)> GetTop3TotalBetAmount()
+    public List<(string League, decimal TotalBetAmount)> GetTop3TotalBetAmount()
     {
-        //TODO:題目二移植
-        return null;
+        return MatchBetDataList
+            .GroupBy(record => record.League)
+            .Select(group => (
+                League: group.Key,
+                TotalBetAmount: group.Sum(record => record.BetAmount)))
+            .OrderByDescending(result => result.TotalBetAmount)
+            .ThenBy(result => result.League, StringComparer.Ordinal)
+            .Take(3)
+            .ToList();
+    }
+
+    public List<(string MatchKey, int Count, decimal TotalBetAmount)> GetduplicateMatches()
+    {
+        return MatchBetDataList
+            .GroupBy(record => new
+            {
+                record.League,
+                record.HomeTeam,
+                record.AwayTeam,
+                record.HomeScore,
+                record.AwayScore
+            })
+            .Where(group => group.Count() > 1)
+            .Select(group => (
+                MatchKey:
+                    $"{group.Key.League} | " +
+                    $"{group.Key.HomeTeam} vs {group.Key.AwayTeam} | " +
+                    $"{group.Key.HomeScore}:{group.Key.AwayScore}",
+                Count: group.Count(),
+                TotalBetAmount: group.Sum(record => record.BetAmount)))
+            .OrderByDescending(result => result.Count)
+            .ThenByDescending(result => result.TotalBetAmount)
+            .ThenBy(result => result.MatchKey, StringComparer.Ordinal)
+            .ToList();
     }
 }

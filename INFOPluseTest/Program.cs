@@ -40,14 +40,7 @@ internal static class Program
             if (CurrentData.Count() == 0)
                 return 0;
             //題目二：
-            var result2 = CurrentData.GroupBy(x => x.League)
-                .Select(g => new
-                {
-                    League = g.Key,
-                    TotalBetAmount = g.Sum(x => x.BetAmount)
-                }).OrderByDescending(x=>x.TotalBetAmount)
-                .Take(3)
-                .ToList();
+            var result2 = matchBetService.GetTop3TotalBetAmount();
             logger.Info("投注金額最高的前三筆資料：");
 
             foreach (var item in result2)
@@ -57,29 +50,7 @@ internal static class Program
                     $"總投注金額：{item.TotalBetAmount:N0}，");
             }
             //題目三：
-            var duplicateMatches = CurrentData
-                .GroupBy(item => new
-                {
-                    item.League,
-                    item.HomeTeam,
-                    item.AwayTeam,
-                    item.HomeScore,
-                    item.AwayScore
-                })
-                .Where(group => group.Count() > 1)
-                .Select(group => new
-                {
-                    MatchKey =
-                        $"{group.Key.League} | " +
-                        $"{group.Key.HomeTeam} vs {group.Key.AwayTeam} | " +
-                        $"{group.Key.HomeScore}:{group.Key.AwayScore}",
-
-                    Count = group.Count(),
-                    TotalBetAmount = group.Sum(item => item.BetAmount)
-                })
-                .OrderByDescending(item => item.Count)
-                .ThenByDescending(item => item.TotalBetAmount)
-                .ToList();
+            var duplicateMatches = matchBetService.GetduplicateMatches();
 
             logger.Info("重複賽事資料：");
 
