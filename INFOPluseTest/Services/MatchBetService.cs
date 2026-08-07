@@ -64,4 +64,10 @@ public class MatchBetService
             MatchBetDataList.Count,
             skippedRecordCount);
     }
+
+    public List<(string,decimal)> GetTop3TotalBetAmount()
+    {
+        //TODO:題目二移植
+        return null;
+    }
 }
