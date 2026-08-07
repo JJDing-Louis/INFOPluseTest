@@ -57,8 +57,39 @@ internal static class Program
                     $"總投注金額：{item.TotalBetAmount:N0}，");
             }
             //題目三：
+            var duplicateMatches = CurrentData
+                .GroupBy(item => new
+                {
+                    item.League,
+                    item.HomeTeam,
+                    item.AwayTeam,
+                    item.HomeScore,
+                    item.AwayScore
+                })
+                .Where(group => group.Count() > 1)
+                .Select(group => new
+                {
+                    MatchKey =
+                        $"{group.Key.League} | " +
+                        $"{group.Key.HomeTeam} vs {group.Key.AwayTeam} | " +
+                        $"{group.Key.HomeScore}:{group.Key.AwayScore}",
 
+                    Count = group.Count(),
+                    TotalBetAmount = group.Sum(item => item.BetAmount)
+                })
+                .OrderByDescending(item => item.Count)
+                .ThenByDescending(item => item.TotalBetAmount)
+                .ToList();
 
+            logger.Info("重複賽事資料：");
+
+            foreach (var match in duplicateMatches)
+            {
+                logger.Info(
+                    $"MatchKey：{match.MatchKey}，" +
+                    $"Count：{match.Count}，" +
+                    $"TotalBetAmount：{match.TotalBetAmount:N0}");
+            }
 
             return 0;
         }

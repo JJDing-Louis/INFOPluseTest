@@ -64,6 +64,4 @@ public class MatchBetService
             MatchBetDataList.Count,
             skippedRecordCount);
     }
-    
-    
 }
