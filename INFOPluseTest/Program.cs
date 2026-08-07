@@ -48,7 +48,15 @@ internal static class Program
                 }).OrderByDescending(x=>x.TotalBetAmount)
                 .Take(3)
                 .ToList();
-            
+            logger.Info("投注金額最高的前三筆資料：");
+
+            foreach (var item in result2)
+            {
+                logger.Info(
+                    $"聯盟：{item.League}，" +
+                    $"總投注金額：{item.TotalBetAmount:N0}，");
+            }
+            //題目三：
 
 
 
